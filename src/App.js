@@ -4,7 +4,7 @@ import { OrderDetailsProvider } from "./contexts/OrderDetails";
 
 function App() {
   return (
-    <Container>
+    <Container style={{ display: "flex" }}>
       <OrderDetailsProvider>
         {/* Summary page and entry page need provider */}
         <OrderEntry />
