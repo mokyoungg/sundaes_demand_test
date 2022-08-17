@@ -4,6 +4,7 @@ import {
   screen,
   waitFor,
 } from "../../../test-utils/testing-library-utils";
+import userEvent from "@testing-library/user-event";
 import OrderEntry from "../OrderEntry";
 import { rest } from "msw";
 import { server } from "../../../mocks/server";
@@ -18,7 +19,7 @@ test.only("handles error for scoops and toppings routes", async () => {
     )
   );
 
-  render(<OrderEntry />);
+  render(<OrderEntry setOrderPhase={jest.fn()} />);
 
   await waitFor(async () => {
     const alerts = await screen.findAllByRole("alert");
@@ -29,3 +30,25 @@ test.only("handles error for scoops and toppings routes", async () => {
 
 // test skip
 // test.skip("not a real test", () => {});
+
+test("disable order button if there are no scoops ordered", async () => {
+  render(<OrderEntry setOrderPhase={jest.fn()} />);
+
+  // order button should be disabled at first, even befrore options load
+  let orderButton = screen.getByRole("button", { name: /order sundae/i });
+  expect(orderButton).toBeDisabled();
+
+  // expect button to be enabled after adding scoop
+  const vanillaInput = await screen.findByRole("spinbutton", {
+    name: "Vanilla",
+  });
+
+  userEvent.clear(vanillaInput);
+  userEvent.type(vanillaInput, "1");
+  expect(orderButton).toBeEnabled();
+
+  // expect button to be disabled again after removing scoop
+  userEvent.clear(vanillaInput);
+  userEvent.type(vanillaInput, "0");
+  expect(orderButton).toBeDisabled();
+});
